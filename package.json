@@ -1,0 +1,40 @@
+{
+  "name": "digital-chocolate-launcher",
+  "version": "1.0.0",
+  "main": "main.js",
+  "description": "The Official Launcher App For DC France",
+  "author": "SwitchCompagnie",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^28.1.3",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.digitalchocolatefrance.launcher",
+    "productName": "DC Launcher",
+    "icon": "assets/logo.ico",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  }
+}

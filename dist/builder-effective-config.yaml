@@ -1,0 +1,17 @@
+directories:
+  output: dist
+  buildResources: build
+appId: com.digitalchocolatefrance.launcher
+productName: DC Launcher
+icon: assets/logo.ico
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+mac:
+  target: dmg
+linux:
+  target: AppImage
+files: []
+electronVersion: 28.1.3
