@@ -1,7 +1,12 @@
-const { app, BrowserWindow, nativeTheme, globalShortcut, session } = require('electron');
+const { app, BrowserWindow, nativeTheme, globalShortcut, session, Tray, Menu } = require('electron');
 const path = require('path');
+const { Client } = require('discord-rpc');
+
+const clientId = '1104155438938853466';
+const rpc = new Client({ transport: 'ipc' });
 
 let mainWindow;
+let tray = null;
 
 function createWindow() {
   session.defaultSession.clearCache();
@@ -25,6 +30,27 @@ function createWindow() {
   mainWindow.on('closed', function () {
     mainWindow = null;
   });
+
+  mainWindow.on('close', function (event) {
+    if (!app.isQuitting) {
+      event.preventDefault();
+      mainWindow.hide();
+    }
+  });
+
+  tray = new Tray(path.join(__dirname, 'assets', 'logo.ico'));
+
+  const contextMenu = Menu.buildFromTemplate([
+    { label: 'Open Launcher', click: () => mainWindow.show() },
+    { label: 'Collections', click: () => mainWindow.loadURL('https://launcher.digitalchocolate.online/collections') },
+    { label: 'Friends', click: () => mainWindow.loadURL('https://launcher.digitalchocolate.online/friends') },
+    { label: 'Settings', click: () => mainWindow.loadURL('https://launcher.digitalchocolate.online/settings') },
+    { type: 'separator' },
+    { label: 'Exit', click: () => app.quit() }
+  ]);
+
+  tray.setToolTip('DC Launcher');
+  tray.setContextMenu(contextMenu);
 }
 
 app.whenReady().then(() => {
@@ -37,7 +63,19 @@ app.whenReady().then(() => {
   globalShortcut.register('CommandOrControl+Shift+I', () => {
   });
 
-  // Gestion processus de construction
+  rpc.login({ clientId }).catch(console.error);
+
+  rpc.on('ready', () => {
+    rpc.setActivity({
+      details: "DC Launcher",
+      state: "In Launcher",
+      startTimestamp: new Date(),
+      largeImageKey: "https://cdn.digitalchocolate.online/launcher-prod/ressources/launcher-app-discord.png",
+      smallImageKey: "https://cdn.digitalchocolate.online/launcher-prod/ressources/launcher-app-discord.png",
+      instance: false,
+    });
+  });
+
   app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') {
       if (process.env.BUILD_ENV !== 'development') {
@@ -45,4 +83,14 @@ app.whenReady().then(() => {
       }
     }
   });
+});
+
+app.on('window-all-closed', function () {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+app.on('before-quit', function () {
+  app.isQuitting = true;
 });
